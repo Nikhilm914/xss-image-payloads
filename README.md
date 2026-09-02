@@ -3,14 +3,14 @@
 > Ready-to-use, image-based **Cross-Site Scripting (XSS)** proof-of-concept files for authorized security testing, bug-bounty research, and defensive validation.
 
 ![License](https://img.shields.io/badge/license-MIT-blue)
-![Payloads](https://img.shields.io/badge/payloads-4-brightgreen)
+![Payloads](https://img.shields.io/badge/payloads-5-brightgreen)
 ![PRs](https://img.shields.io/badge/PRs-welcome-orange)
 ![Use](https://img.shields.io/badge/use-authorized%20testing%20only-critical)
 
-Three distinct techniques for smuggling JavaScript through image-upload and
-file-handling features: a scriptable **SVG**, an **EXIF-metadata** payload, and a
-valid **JPEG/HTML polyglot**. Every file is a real, viewable image — the payload
-stays dormant until the target application mishandles it.
+Four distinct techniques for smuggling JavaScript through image-upload and
+file-handling features: a scriptable **SVG**, a **GIF/JavaScript polyglot** for CSP
+bypass, an **EXIF-metadata** payload, and a **JPEG/HTML polyglot**. Every file is a
+real, valid image — the payload stays dormant until the target application mishandles it.
 
 > [!WARNING]
 > These are intentional attack payloads. Use them **only** against systems you own or
@@ -18,12 +18,27 @@ stays dormant until the target application mishandles it.
 > program). Unauthorized use is illegal. See [SECURITY.md](SECURITY.md) for the full
 > responsible-use policy.
 
+## Repository layout
+
+```
+xss-image-payloads/
+├── svg_xss_poc.svg              # 1. SVG onload XSS (full image)
+├── svg_xss_poc_minimal.svg      #    same payload, minimal readable version
+├── gif_js_polyglot_poc.gif      # 2. GIF + JavaScript polyglot (CSP bypass)
+├── exif_xss_poc.jpg             # 3. XSS via EXIF metadata fields
+├── jpeg_html_polyglot_poc.jpg   # 4. JPEG + HTML/JS polyglot
+├── README.md
+├── SECURITY.md
+└── LICENSE
+```
+
 ## Contents
 
 | File | Technique | Executes when… |
 |------|-----------|----------------|
 | [`svg_xss_poc.svg`](svg_xss_poc.svg) | `onload` handler on the root `<svg>` (full image) | the SVG is served or opened as a document, or embedded same-origin |
 | [`svg_xss_poc_minimal.svg`](svg_xss_poc_minimal.svg) | Same technique, minimal readable version | same as above — use this one to read the payload |
+| [`gif_js_polyglot_poc.gif`](gif_js_polyglot_poc.gif) | Valid GIF **and** valid JavaScript (polyglot) | the uploaded `.gif` is later loaded via `<script src>` |
 | [`exif_xss_poc.jpg`](exif_xss_poc.jpg) | HTML injected into EXIF text fields | an app reflects image metadata into a page without encoding |
 | [`jpeg_html_polyglot_poc.jpg`](jpeg_html_polyglot_poc.jpg) | Valid JPEG **and** valid HTML/JS (polyglot) | the file is served or sniffed as `text/html` |
 
@@ -53,7 +68,31 @@ origin is the target, the alert shows the target's domain, i.e. **stored XSS**.
 > "view file" endpoint). `svg_xss_poc_minimal.svg` is the same payload trimmed to a few
 > readable lines.
 
-### 2. EXIF metadata XSS — `exif_xss_poc.jpg`
+### 2. GIF/JavaScript polyglot (CSP bypass) — `gif_js_polyglot_poc.gif`
+
+One file that is **both a valid GIF image and valid JavaScript**. The GIF signature
+`GIF89a` doubles as a JavaScript variable; the two logical-screen width bytes are set to
+`/*`, which opens a JS comment that swallows the binary image data, and the file ends by
+closing that comment and running the payload:
+
+```
+GIF89a/* …binary GIF data… */=alert(document.domain)//
+```
+
+To a browser reading it as JavaScript, that is simply `GIF89a = alert(document.domain)`.
+
+It fires when an app accepts a `.gif` upload — it passes image validation because it
+genuinely is a valid GIF — and later references it as a script,
+`<script src="/uploads/evil.gif">`. Because the script is then served from the site's own
+origin, it **bypasses a `script-src 'self'` Content-Security-Policy**, one of the most
+useful upload-based bypasses there is.
+
+> [!NOTE]
+> Here the picture is cosmetic — the value is a file that is a *valid* GIF (so it clears
+> upload filters) **and** *executes as JavaScript*. Verify both:
+> `identify gif_js_polyglot_poc.gif` sees an image, and `node --check` sees valid JS.
+
+### 3. EXIF metadata XSS — `exif_xss_poc.jpg`
 
 The image data is clean; the metadata carries the payload. The same HTML sits in four
 EXIF text fields (`ImageDescription`, `Software`, `Artist`, `UserComment`):
@@ -70,7 +109,7 @@ camera-info widgets are common culprits. Inspect the fields yourself:
 exiftool exif_xss_poc.jpg
 ```
 
-### 3. JPEG/HTML polyglot — `jpeg_html_polyglot_poc.jpg`
+### 4. JPEG/HTML polyglot — `jpeg_html_polyglot_poc.jpg`
 
 One file, two valid formats. It is a fully valid JPEG that also carries HTML/JS inside a
 JPEG comment segment:
@@ -96,8 +135,17 @@ python3 -m http.server 8000
 ```
 
 - **SVG** — open `http://localhost:8000/svg_xss_poc.svg` (served as a document, so `onload` fires).
+- **GIF/JS polyglot** — confirm it is both a valid image and valid JavaScript, then load it as a script:
+
+  ```bash
+  identify gif_js_polyglot_poc.gif        # valid GIF image
+  cp gif_js_polyglot_poc.gif poc.js && node --check poc.js && echo "valid JavaScript"
+  # exploit shape on a target that serves uploads back:
+  #   <script src="https://target/uploads/gif_js_polyglot_poc.gif"></script>
+  ```
+
 - **EXIF** — run `exiftool exif_xss_poc.jpg`, then feed the file to any feature that displays image metadata.
-- **Polyglot** — force it to be parsed as HTML, then open it:
+- **JPEG/HTML polyglot** — force it to be parsed as HTML, then open it:
 
   ```bash
   cp jpeg_html_polyglot_poc.jpg poc.html
@@ -115,12 +163,12 @@ For defenders — how to shut each of these down:
 - **Serve uploads from a sandboxed origin** (a separate, cookieless host) so any script
   execution cannot reach the main application's session.
 - **Set the correct `Content-Type`** and send `X-Content-Type-Options: nosniff` on all
-  user-supplied files.
+  user-supplied files — this alone defeats the JPEG/HTML and GIF/JS tricks.
 - **For SVG,** either sanitize it (strip `<script>` and every `on*` handler, e.g. with
   DOMPurify's SVG profile) or rasterize it to PNG; serve with
   `Content-Disposition: attachment` where inline rendering is not needed.
+- **Never load user uploads as scripts,** and pin a strict `script-src` in your CSP.
 - **Strip metadata on upload,** and HTML-encode any metadata you do display.
-- **Apply a strict Content-Security-Policy** to block inline script as defense in depth.
 
 ## Verifying the files
 
@@ -129,7 +177,7 @@ only image data, the documented payloads, and a `YooZy` copyright tag on the JPE
 Confirm it yourself:
 
 ```bash
-grep -aic -E 'c2pa|jumb' *.jpg *.svg   # expected: 0
+grep -aic -E 'c2pa|jumb' *.jpg *.svg *.gif   # expected: 0
 ```
 
 ## References
